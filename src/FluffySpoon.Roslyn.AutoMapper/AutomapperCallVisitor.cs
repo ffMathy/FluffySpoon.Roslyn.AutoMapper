@@ -13,7 +13,7 @@ namespace FluffySpoon.Roslyn.AutoMapper
     {
         private readonly SemanticModel _semanticModel;
 
-        private readonly INamedTypeSymbol _mapperType;
+        private readonly ICollection<INamedTypeSymbol> _mapperTypes;
         private readonly INamedTypeSymbol _configurationType;
 
         public IDictionary<MappingPair, ICollection<Location>> MappingCalls
@@ -30,7 +30,12 @@ namespace FluffySpoon.Roslyn.AutoMapper
         {
             _semanticModel = semanticModel;
 
-            _mapperType = _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IMapper");
+            _mapperTypes = new []
+            {
+                _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IMapper"),
+                _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IRuntimeMapper")
+            };
+
             _configurationType = _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IProfileExpression");
 
             MappingCalls = new Dictionary<MappingPair, ICollection<Location>>();
@@ -41,7 +46,7 @@ namespace FluffySpoon.Roslyn.AutoMapper
         {
             node = (InvocationExpressionSyntax)base.VisitInvocationExpression(node);
 
-            if (_mapperType == null || _configurationType == null)
+            if (_mapperTypes == null || _configurationType == null)
                 return node;
 
             var mappingCall = GetMappingCallFromContext(node);
@@ -105,7 +110,8 @@ namespace FluffySpoon.Roslyn.AutoMapper
             if (method == null)
                 return null;
 
-            if (!method.ContainingType.Equals(_mapperType))
+            var classType = method.ContainingType;
+            if (!IsMapperType(classType))
                 return null;
 
             if (method.Name != "Map")
@@ -136,6 +142,13 @@ namespace FluffySpoon.Roslyn.AutoMapper
             };
 
             return call;
+        }
+
+        private bool IsMapperType(INamedTypeSymbol classType)
+        {
+            return
+                _mapperTypes.Any(classType.Equals) ||
+                classType.AllInterfaces.Any(IsMapperType);
         }
 
         private static ITypeSymbol GetTypeFromSymbol(ISymbol symbol)

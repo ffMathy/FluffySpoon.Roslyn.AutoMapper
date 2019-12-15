@@ -18,6 +18,42 @@ namespace FluffySpoon.Roslyn.AutoMapper.Tests
         }
 
         [TestMethod]
+        public void VarMapperCallUsingConstructor_ConfiguredButWithWrongMappingCall_DiagnosticShowsUp()
+        {
+            var test = @"
+using AutoMapper;
+class Program
+{   
+    static void Main()
+    {
+        var mapper = new Mapper(new MapperConfiguration(ctx => ctx
+            .CreateMap<ClassToMapFromUnknown, ClassToMapTo>()));
+
+        mapper.Map<ClassToMapTo>(new ClassToMapFrom());
+    }
+}
+
+class ClassToMapTo { }
+
+class ClassToMapFrom { }
+
+class ClassToMapFromUnknown { }
+".Trim();
+
+            var expected = new DiagnosticResult
+            {
+                Id = "FluffySpoonRoslynAutoMapper",
+                Message = "This particular AutoMapper mapping combination was not configured anywhere.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] {
+                    new DiagnosticResultLocation("Test0.cs", 9, 9)
+                }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+        }
+
+        [TestMethod]
         public void MapperCallUsingConstructor_Configured_NoDiagnosticShowsUp()
         {
             var test = @"
