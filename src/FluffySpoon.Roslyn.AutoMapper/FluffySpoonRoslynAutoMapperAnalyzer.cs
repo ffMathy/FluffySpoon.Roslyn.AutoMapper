@@ -42,35 +42,46 @@ namespace FluffySpoon.Roslyn.AutoMapper
 
         private void AnalyzeSemanticModel(SemanticModelAnalysisContext context)
         {
-            if (ThrowErrorsOnDiagnostics)
-            {
-                var diagnostics = context.SemanticModel.GetDiagnostics();
-                if (diagnostics.Length > 0)
-                {
-                    var detailString = diagnostics
-                        .Select(x => x.ToString())
-                        .Aggregate("\n", (a, b) => a + "\n" + b);
-                    throw new InvalidOperationException("The semantic model contains errors." + detailString);
-                }
-            }
+            ThrowOnDiagnostics(context);
+            AnalyzeMapperCalls(context);
+        }
 
+        private static void AnalyzeMapperCalls(SemanticModelAnalysisContext context)
+        {
             var mappingCallVisitor = new AutoMapperCallVisitor(context.SemanticModel);
             mappingCallVisitor.Visit(context.SemanticModel.SyntaxTree.GetRoot(context.CancellationToken));
 
-            var mappingCalls = mappingCallVisitor.MappingCalls;
-            var configurationCalls = mappingCallVisitor.ConfigurationCalls;
-
-            foreach (var mappingCall in mappingCalls)
+            foreach (var mappingCall in mappingCallVisitor.MappingCalls)
             {
-                if (configurationCalls.Contains(mappingCall.Key))
+                if (mappingCallVisitor.ConfigurationCalls.Contains(mappingCall.Key))
                     continue;
 
-                foreach (var location in mappingCall.Value)
-                {
-                    var diagnostic = Diagnostic.Create(Rule, location);
-                    context.ReportDiagnostic(diagnostic);
-                }
+                CreateDiagnosticForMappingCall(context, mappingCall);
             }
+        }
+
+        private static void CreateDiagnosticForMappingCall(SemanticModelAnalysisContext context, KeyValuePair<MappingPair, ICollection<Location>> mappingCall)
+        {
+            foreach (var location in mappingCall.Value)
+            {
+                var diagnostic = Diagnostic.Create(Rule, location);
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static void ThrowOnDiagnostics(SemanticModelAnalysisContext context)
+        {
+            if (!ThrowErrorsOnDiagnostics) 
+                return;
+
+            var diagnostics = context.SemanticModel.GetDiagnostics();
+            if (diagnostics.Length <= 0)
+                return;
+
+            var detailString = diagnostics
+                .Select(x => x.ToString())
+                .Aggregate("\n", (a, b) => a + "\n" + b);
+            throw new InvalidOperationException("The semantic model contains errors." + detailString);
         }
     }
 }

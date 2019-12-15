@@ -117,9 +117,17 @@ namespace FluffySpoon.Roslyn.AutoMapper
             if (method.TypeArguments.Length != 1)
                 return null;
 
-            var sourceType = method.Parameters
-                .Select(x => x.Type)
-                .SingleOrDefault();
+            var argument = invocation
+                .ArgumentList
+                .Arguments
+                .Single();
+            var argumentSymbolInformation = _semanticModel.GetSymbolInfo(argument.Expression);
+
+            var argumentSymbol = argumentSymbolInformation.Symbol as IMethodSymbol;
+            if (argumentSymbol == null)
+                return null;
+
+            var sourceType = argumentSymbol.ReceiverType;
 
             var destinationType = method
                 .ReturnType;
