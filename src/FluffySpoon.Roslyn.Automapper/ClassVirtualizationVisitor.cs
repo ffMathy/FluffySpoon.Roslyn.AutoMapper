@@ -5,23 +5,21 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FluffySpoon.Roslyn.Automapper
+namespace FluffySpoon.Roslyn.AutoMapper
 {
-    class ClassVirtualizationVisitor : CSharpSyntaxRewriter
+    class InvocationExpressionSyntaxVisitor : CSharpSyntaxRewriter
     {
-        private ICollection<string> _classes;
+        public ICollection<InvocationExpressionSyntax> Expressions { get; }
 
-        public ClassVirtualizationVisitor()
+        public InvocationExpressionSyntaxVisitor()
         {
-            _classes = new HashSet<string>();
+            Expressions = new HashSet<InvocationExpressionSyntax>();
         }
 
-        public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
+        public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
         {
-            node = (ClassDeclarationSyntax)base.VisitClassDeclaration(node);
-
-            string className = node.Identifier.ValueText;
-            _classes.Add(className); // save your visited classes
+            node = (InvocationExpressionSyntax) base.VisitInvocationExpression(node);
+            Expressions.Add(node);
 
             return node;
         }

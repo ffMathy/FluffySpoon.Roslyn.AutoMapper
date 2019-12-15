@@ -4,74 +4,48 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
-using FluffySpoon.Roslyn.Automapper;
+using FluffySpoon.Roslyn.AutoMapper;
 
-namespace FluffySpoon.Roslyn.Automapper.Test
+namespace FluffySpoon.Roslyn.AutoMapper.Test
 {
     [TestClass]
-    public class UnitTest : CodeFixVerifier
+    public class UnitTest : DiagnosticVerifier
     {
-
-        //No diagnostics expected to show up
         [TestMethod]
-        public void TestMethod1()
+        public void MapperCall_NoDiagnosticsShowUp()
+        {
+            var test = @"
+class Program
+{   
+    static void Main() {
+        AutoMapper.IMapper mapper = null;
+        mapper.Map<ClassToMapTo>(null);
+    }
+}
+
+class ClassToMapTo { }";
+            VerifyCSharpDiagnostic(test);
+
+            //var expected = new DiagnosticResult
+            //{
+            //    Id = "FluffySpoonRoslynAutoMapper",
+            //    Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
+            //    Severity = DiagnosticSeverity.Warning,
+            //    Locations =
+            //        new[] {
+            //                new DiagnosticResultLocation("Test0.cs", 11, 15)
+            //            }
+            //};
+
+            //VerifyCSharpDiagnostic(test, expected);
+        }
+
+        [TestMethod]
+        public void NoCode_NoDiagnosticsShowUp()
         {
             var test = @"";
 
             VerifyCSharpDiagnostic(test);
-        }
-
-        //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
-        public void TestMethod2()
-        {
-            var test = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
-
-    namespace ConsoleApplication1
-    {
-        class TypeName
-        {   
-        }
-    }";
-            var expected = new DiagnosticResult
-            {
-                Id = "FluffySpoonRoslynAutomapper",
-                Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
-                Severity = DiagnosticSeverity.Warning,
-                Locations =
-                    new[] {
-                            new DiagnosticResultLocation("Test0.cs", 11, 15)
-                        }
-            };
-
-            VerifyCSharpDiagnostic(test, expected);
-
-            var fixtest = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
-
-    namespace ConsoleApplication1
-    {
-        class TYPENAME
-        {   
-        }
-    }";
-            VerifyCSharpFix(test, fixtest);
-        }
-
-        protected override CodeFixProvider GetCSharpCodeFixProvider()
-        {
-            return new FluffySpoonRoslynAutomapperCodeFixProvider();
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()

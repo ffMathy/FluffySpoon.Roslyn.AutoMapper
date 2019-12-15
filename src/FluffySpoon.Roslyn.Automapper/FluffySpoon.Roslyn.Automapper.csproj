@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>FluffySpoon.Roslyn.Automapper</PackageId>
+    <PackageId>FluffySpoon.Roslyn.AutoMapper</PackageId>
     <PackageVersion>1.0.0.0</PackageVersion>
     <Authors>mathi</Authors>
     <PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
@@ -15,11 +15,13 @@
     <PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
     <RepositoryUrl>http://REPOSITORY_URL_HERE_OR_DELETE_THIS_LINE</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>FluffySpoon.Roslyn.Automapper</Description>
+    <Description>FluffySpoon.Roslyn.AutoMapper</Description>
     <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
     <Copyright>Copyright</Copyright>
-    <PackageTags>FluffySpoon.Roslyn.Automapper, analyzers</PackageTags>
+    <PackageTags>FluffySpoon.Roslyn.AutoMapper, analyzers</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
+    <AssemblyName>FluffySpoon.Roslyn.AutoMapper</AssemblyName>
+    <RootNamespace>FluffySpoon.Roslyn.AutoMapper</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

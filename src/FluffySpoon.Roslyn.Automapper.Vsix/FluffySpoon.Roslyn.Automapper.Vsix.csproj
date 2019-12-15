@@ -54,9 +54,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FluffySpoon.Roslyn.Automapper\FluffySpoon.Roslyn.Automapper.csproj">
+    <ProjectReference Include="..\FluffySpoon.Roslyn.Automapper\FluffySpoon.Roslyn.AutoMapper.csproj">
       <Project>{72662377-F50B-48EC-ACDE-0FA6DD3568AA}</Project>
-      <Name>FluffySpoon.Roslyn.Automapper</Name>
+      <Name>FluffySpoon.Roslyn.AutoMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
