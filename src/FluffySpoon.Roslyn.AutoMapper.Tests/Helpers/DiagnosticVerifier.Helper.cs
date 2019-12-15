@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using AutoMapper;
 using Microsoft.CodeAnalysis;
@@ -157,6 +158,10 @@ namespace FluffySpoon.Roslyn.AutoMapper.Tests.Verifiers
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, AutoMapperReference);
 
+            //add .NET standard to prevent errors.
+            solution = AddRuntimeLibrary(solution, projectId, "netstandard.dll");
+            solution = AddRuntimeLibrary(solution, projectId, "System.Runtime.dll");
+
             int count = 0;
             foreach (var source in sources)
             {
@@ -166,6 +171,19 @@ namespace FluffySpoon.Roslyn.AutoMapper.Tests.Verifiers
                 count++;
             }
             return solution.GetProject(projectId);
+        }
+
+        private static Solution AddRuntimeLibrary(
+            Solution solution,
+            ProjectId projectId, 
+            string fileName)
+        {
+            var runtimeDirectory = System.Runtime.InteropServices.RuntimeEnvironment
+                .GetRuntimeDirectory();
+            var dll = Path.Combine(runtimeDirectory, fileName);
+
+            return solution.AddMetadataReference(projectId,
+                MetadataReference.CreateFromFile(dll));
         }
         #endregion
     }
