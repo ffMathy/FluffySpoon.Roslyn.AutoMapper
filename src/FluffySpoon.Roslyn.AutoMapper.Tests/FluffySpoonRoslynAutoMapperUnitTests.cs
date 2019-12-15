@@ -18,7 +18,7 @@ namespace FluffySpoon.Roslyn.AutoMapper.Tests
         }
 
         [TestMethod]
-        public void MapperCall_Configured_NoDiagnosticShowsUp()
+        public void MapperCallUsingConstructor_Configured_NoDiagnosticShowsUp()
         {
             var test = @"
 using AutoMapper;
@@ -42,7 +42,60 @@ class ClassToMapFrom { }
         }
 
         [TestMethod]
-        public void MapperCall_ConfiguredButWithWrongMappingCall_DiagnosticShowsUp()
+        public void MapperCallUsingFunctionCall_Configured_NoDiagnosticShowsUp()
+        {
+            var test = @"
+using AutoMapper;
+class Program
+{   
+    static void Main()
+    {
+        IMapper mapper = new Mapper(new MapperConfiguration(ctx => ctx
+            .CreateMap<ClassToMapFrom, ClassToMapTo>()));
+
+        mapper.Map<ClassToMapTo>(GetClassToMapFrom());
+    }
+
+    static ClassToMapFrom GetClassToMapFrom() {
+        return null;
+    }
+}
+
+class ClassToMapTo { }
+
+class ClassToMapFrom { }
+".Trim();
+
+            VerifyCSharpDiagnostic(test);
+        }
+
+        [TestMethod]
+        public void MapperCallUsingVariableReference_Configured_NoDiagnosticShowsUp()
+        {
+            var test = @"
+using AutoMapper;
+class Program
+{   
+    static void Main()
+    {
+        IMapper mapper = new Mapper(new MapperConfiguration(ctx => ctx
+            .CreateMap<ClassToMapFrom, ClassToMapTo>()));
+
+        ClassToMapFrom variable = null;
+        mapper.Map<ClassToMapTo>(variable);
+    }
+}
+
+class ClassToMapTo { }
+
+class ClassToMapFrom { }
+".Trim();
+
+            VerifyCSharpDiagnostic(test);
+        }
+
+        [TestMethod]
+        public void MapperCallUsingConstructor_ConfiguredButWithWrongMappingCall_DiagnosticShowsUp()
         {
             var test = @"
 using AutoMapper;
@@ -78,7 +131,74 @@ class ClassToMapFromUnknown { }
         }
 
         [TestMethod]
-        public void MapperCall_NotConfigured_DiagnosticShowsUp()
+        public void MapperCallUsingFunctionCall_NotConfigured_DiagnosticShowsUp()
+        {
+            var test = @"
+using AutoMapper;
+class Program
+{   
+    static void Main() {
+        IMapper mapper = null;
+        mapper.Map<ClassToMapTo>(GetClassToMapFrom());
+    }
+
+    static ClassToMapFrom GetClassToMapFrom() {
+        return null;
+    }
+}
+
+class ClassToMapTo { }
+
+class ClassToMapFrom { }
+".Trim();
+
+            var expected = new DiagnosticResult
+            {
+                Id = "FluffySpoonRoslynAutoMapper",
+                Message = "This particular AutoMapper mapping combination was not configured anywhere.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] {
+                    new DiagnosticResultLocation("Test0.cs", 6, 9)
+                }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+        }
+
+        [TestMethod]
+        public void MapperCallUsingVariableReference_NotConfigured_DiagnosticShowsUp()
+        {
+            var test = @"
+using AutoMapper;
+class Program
+{   
+    static void Main() {
+        IMapper mapper = null;
+        ClassToMapFrom variable = null;
+        mapper.Map<ClassToMapTo>(variable);
+    }
+}
+
+class ClassToMapTo { }
+
+class ClassToMapFrom { }
+".Trim();
+
+            var expected = new DiagnosticResult
+            {
+                Id = "FluffySpoonRoslynAutoMapper",
+                Message = "This particular AutoMapper mapping combination was not configured anywhere.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] {
+                    new DiagnosticResultLocation("Test0.cs", 7, 9)
+                }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+        }
+
+        [TestMethod]
+        public void MapperCallUsingConstructor_NotConfigured_DiagnosticShowsUp()
         {
             var test = @"
 using AutoMapper;
@@ -109,7 +229,7 @@ class ClassToMapFrom { }
         }
 
         [TestMethod]
-        public void MapperCall_NotImported_NoDiagnosticShowsUp()
+        public void MapperCallUsingConstructor_AutoMapperNotImported_NoDiagnosticShowsUp()
         {
             FluffySpoonRoslynAutoMapperAnalyzer.ThrowErrorsOnDiagnostics = false;
 

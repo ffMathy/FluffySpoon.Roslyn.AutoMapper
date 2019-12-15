@@ -122,25 +122,40 @@ namespace FluffySpoon.Roslyn.AutoMapper
                 .Arguments
                 .Single();
             var argumentSymbolInformation = _semanticModel.GetSymbolInfo(argument.Expression);
-
-            var argumentSymbol = argumentSymbolInformation.Symbol as IMethodSymbol;
-            if (argumentSymbol == null)
+            
+            var sourceType = GetTypeFromSymbol(argumentSymbolInformation.Symbol);
+            if (sourceType == null) 
                 return null;
 
-            var sourceType = argumentSymbol.ReceiverType;
-
-            var destinationType = method
-                .ReturnType;
-
-            if (!method.ReturnType.Equals(destinationType))
-                return null;
+            var destinationType = method.ReturnType;
 
             var call = new MappingPair()
             {
                 SourceType = sourceType,
                 DestinationType = destinationType
             };
+
             return call;
+        }
+
+        private static ITypeSymbol GetTypeFromSymbol(ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IMethodSymbol methodSymbol:
+                    return methodSymbol.IsImplicitlyDeclared ?
+                        methodSymbol.ReceiverType :
+                        methodSymbol.ReturnType;
+
+                case ILocalSymbol localSymbol:
+                    return localSymbol.Type;
+
+                case IPropertySymbol propertySymbol:
+                    return propertySymbol.Type;
+
+                default:
+                    return null;
+            }
         }
     }
 }
