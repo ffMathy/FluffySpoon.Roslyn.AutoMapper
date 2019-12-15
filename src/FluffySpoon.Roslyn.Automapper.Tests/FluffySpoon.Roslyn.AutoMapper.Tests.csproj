@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluffySpoon.Roslyn.Automapper\FluffySpoon.Roslyn.AutoMapper.csproj" />
+    <ProjectReference Include="..\FluffySpoon.Roslyn.AutoMapper\FluffySpoon.Roslyn.AutoMapper.csproj" />
   </ItemGroup>
 
 </Project>
