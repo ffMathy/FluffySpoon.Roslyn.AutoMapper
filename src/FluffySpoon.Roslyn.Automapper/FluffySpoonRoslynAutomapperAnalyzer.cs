@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace FluffySpoon.Roslyn.AutoMapper
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class FluffySpoonRoslynAutomapperAnalyzer : DiagnosticAnalyzer
+    public class FluffySpoonRoslynAutoMapperAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "FluffySpoonRoslynAutoMapper";
 
