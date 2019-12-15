@@ -13,6 +13,11 @@ namespace FluffySpoon.Roslyn.AutoMapper
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class FluffySpoonRoslynAutoMapperAnalyzer : DiagnosticAnalyzer
     {
+        public static bool ThrowErrorsOnDiagnostics
+        {
+            get; set;
+        }
+
         public const string DiagnosticId = "FluffySpoonRoslynAutoMapper";
 
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
@@ -20,7 +25,7 @@ namespace FluffySpoon.Roslyn.AutoMapper
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "CodeQuality";
 
-        private static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+        private static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         {
@@ -37,6 +42,18 @@ namespace FluffySpoon.Roslyn.AutoMapper
 
         private void AnalyzeSemanticModel(SemanticModelAnalysisContext context)
         {
+            if (ThrowErrorsOnDiagnostics)
+            {
+                var diagnostics = context.SemanticModel.GetDiagnostics();
+                if (diagnostics.Length > 0)
+                {
+                    var detailString = diagnostics
+                        .Select(x => x.ToString())
+                        .Aggregate("\n", (a, b) => a + "\n" + b);
+                    throw new InvalidOperationException("The semantic model contains errors." + detailString);
+                }
+            }
+
             var mappingCallVisitor = new AutoMapperCallVisitor(context.SemanticModel);
             mappingCallVisitor.Visit(context.SemanticModel.SyntaxTree.GetRoot(context.CancellationToken));
 
@@ -45,10 +62,14 @@ namespace FluffySpoon.Roslyn.AutoMapper
 
             foreach (var mappingCall in mappingCalls)
             {
-                if (configurationCalls.Contains(mappingCall))
+                if (configurationCalls.Contains(mappingCall.Key))
                     continue;
 
-                Report
+                foreach (var location in mappingCall.Value)
+                {
+                    var diagnostic = Diagnostic.Create(Rule, location);
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
         }
     }

@@ -62,7 +62,7 @@ namespace FluffySpoon.Roslyn.AutoMapper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type names should be all uppercase..
+        ///   Looks up a localized string similar to All AutoMapper mappings should be registered..
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -71,7 +71,7 @@ namespace FluffySpoon.Roslyn.AutoMapper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type name &apos;{0}&apos; contains lowercase letters.
+        ///   Looks up a localized string similar to This particular AutoMapper mapping combination was not configured anywhere..
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -80,7 +80,7 @@ namespace FluffySpoon.Roslyn.AutoMapper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type name contains lowercase letters.
+        ///   Looks up a localized string similar to Unknown mapping.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

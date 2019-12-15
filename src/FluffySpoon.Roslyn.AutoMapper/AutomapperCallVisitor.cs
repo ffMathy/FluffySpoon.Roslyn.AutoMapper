@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,7 +16,7 @@ namespace FluffySpoon.Roslyn.AutoMapper
         private readonly INamedTypeSymbol _mapperType;
         private readonly INamedTypeSymbol _configurationType;
 
-        public ICollection<MappingPair> MappingCalls
+        public IDictionary<MappingPair, ICollection<Location>> MappingCalls
         {
             get;
         }
@@ -32,7 +33,7 @@ namespace FluffySpoon.Roslyn.AutoMapper
             _mapperType = _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IMapper");
             _configurationType = _semanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IProfileExpression");
 
-            MappingCalls = new HashSet<MappingPair>();
+            MappingCalls = new Dictionary<MappingPair, ICollection<Location>>();
             ConfigurationCalls = new HashSet<MappingPair>();
         }
 
@@ -46,13 +47,18 @@ namespace FluffySpoon.Roslyn.AutoMapper
             var mappingCall = GetMappingCallFromContext(node);
             if (mappingCall != null)
             {
-                MappingCalls.Add(mappingCall.Value);
+                if (!MappingCalls.ContainsKey(mappingCall.Value))
+                    MappingCalls.Add(mappingCall.Value, new HashSet<Location>());
+
+                MappingCalls[mappingCall.Value].Add(node.GetLocation());
             }
             else
             {
                 var configurationCall = GetConfigurationCallFromContext(node);
                 if (configurationCall != null)
+                {
                     ConfigurationCalls.Add(configurationCall.Value);
+                }
             }
 
             return node;
