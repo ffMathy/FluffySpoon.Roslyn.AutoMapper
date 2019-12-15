@@ -1,12 +1,9 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
+using AutoMapper;
+using FluffySpoon.Roslyn.AutoMapper.Tests.Verifiers;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using TestHelper;
-using FluffySpoon.Roslyn.AutoMapper;
 
-namespace FluffySpoon.Roslyn.AutoMapper.Test
+namespace FluffySpoon.Roslyn.AutoMapper.Tests
 {
     [TestClass]
     public class UnitTest : DiagnosticVerifier
@@ -50,7 +47,7 @@ class ClassToMapTo { }";
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new FluffySpoonRoslynAutomapperAnalyzer();
+            return new FluffySpoonRoslynAutoMapperAnalyzer();
         }
     }
 }

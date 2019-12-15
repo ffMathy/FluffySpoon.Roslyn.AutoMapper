@@ -32,69 +32,24 @@ namespace FluffySpoon.Roslyn.AutoMapper
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.InvocationExpression);
-            context.RegisterSemanticModelAction(AnalyzeSymbol);
+            context.RegisterSemanticModelAction(AnalyzeSemanticModel);
         }
 
-        private void AnalyzeSymbol(SyntaxNodeAnalysisContext context)
+        private void AnalyzeSemanticModel(SemanticModelAnalysisContext context)
         {
-            var call = GetMappingCallFromContext(context);
-            if (call == null)
-                return;
+            var mappingCallVisitor = new AutoMapperCallVisitor(context.SemanticModel);
+            mappingCallVisitor.Visit(context.SemanticModel.SyntaxTree.GetRoot(context.CancellationToken));
 
-            var hasMappingTypeDefined = IsMappingCallDefined(context, call);
-        }
+            var mappingCalls = mappingCallVisitor.MappingCalls;
+            var configurationCalls = mappingCallVisitor.ConfigurationCalls;
 
-        private bool IsMappingCallDefined(MappingPair? call)
-        {
-
-        }
-
-        private static MappingPair? GetMappingCallFromContext(SemanticModelAnalysisContext context)
-        {
-            var invocation = context.Node as InvocationExpressionSyntax;
-            var info = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken);
-
-            var method = info.Symbol as IMethodSymbol;
-            if (method == null)
-                return null;
-
-            if (method.Arity != 1)
-                return null;
-
-            if (method.TypeArguments.Length != 1)
-                return null;
-
-            var mapper = context.SemanticModel.Compilation.GetTypeByMetadataName("AutoMapper.IMapper");
-            if (mapper == null)
-                return null;
-
-            var sourceType = method.Parameters
-                .Select(x => x.Type)
-                .SingleOrDefault();
-
-            var destinationType = method
-                .ReturnType;
-
-            if (!method.ReturnType.Equals(destinationType))
-                return null;
-
-            var call = new MappingPair()
+            foreach (var mappingCall in mappingCalls)
             {
-                SourceType = sourceType,
-                DestinationType = destinationType
-            };
-            return call;
+                if (configurationCalls.Contains(mappingCall))
+                    continue;
+
+                Report
+            }
         }
-
-        //private void AnalyzeSemanticModel(SemanticModelAnalysisContext context)
-        //{
-        //    var semanticModel = context.SemanticModel;
-
-        //    var classVisitor = new ClassVirtualizationVisitor();
-        //    classVisitor.Visit(semanticModel.SyntaxTree.GetRoot(context.CancellationToken));
-
-        //    var classes = classVisitor.Expressions;
-        //}
     }
 }

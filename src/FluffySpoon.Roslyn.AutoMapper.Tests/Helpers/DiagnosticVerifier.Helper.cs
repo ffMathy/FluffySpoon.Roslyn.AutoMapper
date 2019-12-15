@@ -1,14 +1,14 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using AutoMapper;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
-namespace TestHelper
+namespace FluffySpoon.Roslyn.AutoMapper.Tests.Verifiers
 {
     /// <summary>
     /// Class for turning strings into documents and getting the diagnostics on them
