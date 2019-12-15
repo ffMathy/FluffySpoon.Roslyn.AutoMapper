@@ -54,7 +54,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FluffySpoon.Roslyn.Automapper\FluffySpoon.Roslyn.AutoMapper.csproj">
+    <ProjectReference Include="..\FluffySpoon.Roslyn.AutoMapper\FluffySpoon.Roslyn.AutoMapper.csproj">
       <Project>{72662377-F50B-48EC-ACDE-0FA6DD3568AA}</Project>
       <Name>FluffySpoon.Roslyn.AutoMapper</Name>
     </ProjectReference>
