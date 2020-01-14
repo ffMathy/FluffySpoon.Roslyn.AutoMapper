@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <DeployExtension Condition=" '$(AppVeyor)' != '' ">False</DeployExtension>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <DeployExtension>False</DeployExtension>
   </PropertyGroup>
 
   <ItemGroup>
