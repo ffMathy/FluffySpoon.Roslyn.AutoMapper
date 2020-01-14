@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <DeployExtension>False</DeployExtension>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <DeployExtension>True</DeployExtension>
   </PropertyGroup>
 
   <ItemGroup>
